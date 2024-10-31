@@ -10,3 +10,5 @@ edit goland vm options to enable wayland
 ```
 -Dawt.toolkit.name=WLToolkit
 ```
+
+Install gcloud using [official instruction](https://cloud.google.com/sdk/docs/install)
