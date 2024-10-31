@@ -130,6 +130,7 @@ in {
     libcap
     gcc
     python311
+    oath-toolkit
   ];
 
   environment.variables = {
