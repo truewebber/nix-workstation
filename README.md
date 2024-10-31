@@ -12,3 +12,7 @@ edit goland vm options to enable wayland
 ```
 
 Install gcloud using [official instruction](https://cloud.google.com/sdk/docs/install)
+
+```
+gcloud components install kubectl gke-gcloud-auth-plugin
+```
