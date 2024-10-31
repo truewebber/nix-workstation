@@ -97,12 +97,12 @@ in {
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.truewebber = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "sudo" "networkmanager" "fingerprint" "audio" "video" "input" ];
-  #   packages = with pkgs; [
-  #     firefox
-  #     tree
-  #   ];
+    extraGroups = [ "wheel" "sudo" "networkmanager" "fingerprint" "audio" "video" "input" "docker" ];
   };
+
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -131,7 +131,15 @@ in {
     gcc
     python311
     oath-toolkit
+    kubectx
+    expect
+    openvpn
+    dpkg
+    unzip
+    capitaine-cursors
   ];
+
+  virtualisation.docker.enable = true;
 
   environment.variables = {
     XDG_CURRENT_DESKTOP = "Hyprland";
