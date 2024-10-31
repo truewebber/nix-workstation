@@ -129,7 +129,8 @@ in {
     unstable.go
     libcap
     gcc
- ];
+    python311
+  ];
 
   environment.variables = {
     XDG_CURRENT_DESKTOP = "Hyprland";
