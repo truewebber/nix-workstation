@@ -8,6 +8,7 @@ let
   unstable = import <unstable> {
     config.allowUnfree = true;
   };
+  zscalerDrv = "/nix/store/lqp32mnynywnr7mlvrdm9wynipba2lmw-zscaler-1.0";
 in {
   imports =
     [ # Include the results of the hardware scan.
@@ -102,6 +103,19 @@ in {
 
   programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [
+    glibc
+    dbus
+    dbus-glib
+    glib
+    glib-networking
+    gobject-introspection
+    libpcap
+    /nix/store/31wr93740iamy0hjr2fchrvp78in8lvd-libpcap-0.8.3
+    gcc-unwrapped.lib
+    pacparser
+    qtbase
+    libsForQt5
+    
   ];
 
   # List packages installed in system profile. To search, run:
@@ -137,6 +151,7 @@ in {
     dpkg
     unzip
     capitaine-cursors
+    binutils
   ];
 
   virtualisation.docker.enable = true;
@@ -150,6 +165,8 @@ in {
     GDK_BACKEND = "wayland";       # GTK apps use Wayland
     OZONE_PLATFORM = "wayland";    # Chromium-based apps (Chrome, Edge, Brave) use Wayland
     XDG_SESSION_TYPE = "wayland";  # Set session type to Wayland
+
+    NIX_CC = "${pkgs.gcc}";
   };
 
   environment.sessionVariables = {
@@ -181,6 +198,63 @@ in {
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
+
+  # Zscaler systemd service configuration for NixOS
+  systemd.services.zsaservice = {
+    description = "Zscaler Service for monitoring Tunnel and Tray";
+    after = [ "rc-local.service" "dbus.socket" "dbus-org.freedesktop.nm-dispatcher.service" ];
+    wantedBy = [ "multi-user.target" ];
+
+    serviceConfig = {
+      WorkingDirectory = "${zscalerDrv}";
+      ExecStart = "${zscalerDrv}/opt/zscaler/bin/zsaservice";
+      KillMode = "process";
+      Restart = "always";
+      Type = "simple";
+      RestartSec = 2;
+      TimeoutStartSec = 5;
+      IgnoreSIGPIPE = "no";
+      StandardOutput = "journal";
+      StandardError = "inherit";
+      RemainAfterExit = true;
+      Environment = [
+        "NIX_LD=/run/current-system/sw/share/nix-ld/lib/ld.so"
+        "LD_LIBRARY_PATH=/run/current-system/sw/share/nix-ld/lib/"
+      ];
+    };
+  };
+  systemd.services.zstunnel = {
+    description = "Zscaler ZCC Tunnel process";
+    after = [ "rc-local.service" "dbus.socket" "dbus-org.freedesktop.nm-dispatcher.service" ];
+    wantedBy = [ "multi-user.target" ];
+ 
+    path = with pkgs; [
+      glibc
+      dbus
+      dbus-glib
+      glib
+      glib-networking
+      gobject-introspection
+      libpcap
+      gcc-unwrapped.lib
+      pacparser
+    ];
+   
+    serviceConfig = {
+      WorkingDirectory = "${zscalerDrv}";
+      ExecStart = "${zscalerDrv}/opt/zscaler/bin/zstunnel";
+      KillMode = "mixed";
+      Type = "simple";
+      IgnoreSIGPIPE = "no";
+      StandardOutput = "journal";
+      StandardError = "inherit";
+      RemainAfterExit = true;
+      Environment = [
+        "NIX_LD=/run/current-system/sw/share/nix-ld/lib/ld.so"
+        "LD_LIBRARY_PATH=/run/current-system/sw/share/nix-ld/lib/"
+      ];
+    };
+  };
 
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
