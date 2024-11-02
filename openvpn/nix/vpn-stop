@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+if [ "$(id -u)" != "0" ]; then
+ echo "requires superuser privileges."
+ exit 1
+fi
+
+pid_file="/var/run/vpn-start.pid"
+
+if [ ! -e "$pid_file" ]; then
+ exit 0;
+fi
+
+pid=$(cat "$pid_file")
+
+if ps -p "$pid" > /dev/null; then
+ if kill -15 $pid > /dev/null; then
+  rm "$pid_file"
+  exit 0;
+ else
+  echo "failed kill process with PID $pid."
+  exit 1
+ fi
+
+fi
