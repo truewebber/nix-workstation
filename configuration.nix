@@ -44,7 +44,7 @@ in {
     };
   };
 
-  services.fprintd.enable = true;
+#  services.fprintd.enable = true;
 
   services.pipewire = {
     enable = true;
@@ -304,6 +304,16 @@ in {
   nixpkgs.config = {
     allowUnfree = true;
   };
+
+  #security.pam.services = {
+  #  login = {
+  #    text = ''
+  #      auth  sufficient pam_unix.so try_first_pass likeauth nullok
+  #      auth  sufficient pam_fprintd.so
+  #      auth  required   pam_deny.so
+  #    '';
+  #  };
+  #};
 
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
