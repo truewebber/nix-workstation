@@ -1,7 +1,7 @@
 # Edit this configuration file to define what should be installed on your system. Help is available in the configuration.nix(5) man page, on https://search.nixos.org/options and in the NixOS manual 
 # (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
+{ options, config, lib, pkgs, ... }:
 
 let
   unstable = import <unstable> {
@@ -23,7 +23,7 @@ in {
   networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
 
   # Set your time zone.
-  # time.timeZone = "Europe/Amsterdam";
+  time.timeZone = "Europe/Madrid";
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -37,8 +37,6 @@ in {
   #   useXkbConfig = true; # use xkb.options in tty.
   # };
 
-  # Enable the X11 windowing system.
-  #services.xserver.enable = true;
   services.displayManager.sddm = {
     enable = true;
     wayland = {
@@ -51,24 +49,54 @@ in {
   services.pipewire = {
     enable = true;
     alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    wireplumber.enable = true;
   };
 
   services.seatd.enable = true;
 
-  programs.hyprland = {
-    enable = true;
-  };
-
-  programs.thunar.enable = true;
-  programs.xfconf.enable = true;
-
-  programs.thunar.plugins = with pkgs.xfce; [
-    thunar-archive-plugin
-    thunar-volman
-  ];
-
   services.gvfs.enable = true; # Mount, trash, and other functionalities
   services.tumbler.enable = true; # Thumbnail support for images
+
+  # Enable NTP for accurate time
+  services.timesyncd.enable = true;
+
+  services.blueman.enable = true;
+
+  programs = {
+    hyprland.enable = true;
+    hyprlock.enable = true;
+
+    xfconf.enable = true;
+
+    thunar = {
+      enable = true;
+      plugins = with pkgs.xfce; [
+        exo
+        mousepad
+        thunar-archive-plugin
+        thunar-volman
+        tumbler
+      ];
+    };
+
+    nix-ld = {
+      enable = true;
+      libraries = with pkgs; [
+        glibc
+        dbus
+        dbus-glib
+        glib
+        glib-networking
+        gobject-introspection
+        libpcap
+        gcc-unwrapped.lib
+        pacparser
+        gcc-unwrapped.stdenv.cc.cc.lib
+      ];
+    };
+  };
 
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
@@ -99,62 +127,124 @@ in {
     extraGroups = [ "wheel" "sudo" "networkmanager" "fingerprint" "audio" "video" "input" "docker" ];
   };
 
-  programs.nix-ld.enable = true;
-  programs.nix-ld.libraries = with pkgs; [
-    glibc
-    dbus
-    dbus-glib
-    glib
-    glib-networking
-    gobject-introspection
-    libpcap
-    gcc-unwrapped.lib
-    pacparser
-    gcc-unwrapped.stdenv.cc.cc.lib
-  ];
-
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim
-    wget
-    networkmanager
-    curl
-    git
-    htop
-    slack
-    google-chrome
-    sublime3
-    waybar
-    wl-clipboard
-    wofi
-    grim
-    slurp
-    kitty
+    ags
     alacritty
-    dunst
-    pavucontrol
-    unstable.jetbrains.goland
-    unstable.go
-    libcap
-    gcc
-    python311
-    oath-toolkit
-    kubectx
-    expect
-    openvpn
-    dpkg
-    unzip
-    capitaine-cursors 
+    baobab
     binutils
-    openssl
-    systemd
-    inetutils  # Provides net-tools equivalents like ifconfig
-    iproute2  # For modern networking tools
-    dbus
-    jq
+    brightnessctl
+    btop
+    btrfs-progs
+    capitaine-cursors
+    cava
+    clang
     coreutils
+    cpufrequtils
+    curl
+    dbus
+    dpkg
+    duf
+    dunst
+    unstable.eog
+    expect
+    eza
+    fastfetch
+    ffmpeg
+    unstable.file-roller
+    gcc
+    git
+    glib
+    unstable.gnome-system-monitor
+    google-chrome
+    grim
+    gsettings-qt
+    gtk-engine-murrine
+    htop
+    hyprcursor
+    hypridle
+    imagemagick
+    inetutils
+    inxi
+    iproute2
+    jq
+    killall
+    kitty
+    kubectx
+    libappindicator
+    libcap
+    libnotify
+    libsForQt5.qt5ct
+    libsForQt5.qtstyleplugin-kvantum
+    (mpv.override {scripts = [mpvScripts.mpris];})
+    networkmanager
+    networkmanagerapplet
+    unstable.nvtopPackages.full
+    nwg-look
+    oath-toolkit
+    openssl
+    openvpn
+    pamixer
+    pavucontrol
+    pciutils
+    playerctl
+    polkit_gnome
+    pyprland
+    python311
+    qt6ct
+    qt6Packages.qtstyleplugin-kvantum
+    qt6.qtwayland
+    rofi-wayland
+    slack
+    slurp
+    sublime3
+    swappy
+    swaynotificationcenter
+    swww
+    systemd
+    unstable.go
+    unstable.jetbrains.goland
+    unzip
+    vim
+    wallust
+    waybar
+    wget
+    wl-clipboard
+    unstable.wlogout
+    wofi
+    xdg-user-dirs
+    xdg-utils
+    yad
+    yt-dlp
+
+#    adwaita-qt
+    unstable.adwaita-icon-theme
   ];
+
+  # FONTS
+  fonts.packages = with pkgs; [
+    noto-fonts
+    fira-code
+    noto-fonts-cjk-sans
+    jetbrains-mono
+    font-awesome
+    terminus_font
+    (nerdfonts.override {fonts = ["JetBrainsMono"];})
+  ];
+
+  # Extra Portal Configuration
+  xdg.portal = {
+    enable = true;
+    wlr.enable = false;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+    ];
+    configPackages = [
+      pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal
+    ];
+  };
 
   virtualisation.docker.enable = true;
 
@@ -178,6 +268,18 @@ in {
   hardware.opengl.enable = true;
   hardware.opengl.driSupport = true;
   hardware.opengl.extraPackages = [ pkgs.mesa_drivers ];
+
+  # Enable sound with pipewire.
+  hardware.pulseaudio.enable = false;
+
+  hardware.bluetooth = {
+    enable = true; # enables support for Bluetooth
+    powerOnBoot = true; # powers up the default Bluetooth controller on boot
+  };
+
+  powerManagement = {
+    enable = true;
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
