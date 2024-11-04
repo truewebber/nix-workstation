@@ -59,7 +59,7 @@
 	"custom/separator#dot-line",
 	//"keyboard-state",
 	//"custom/separator#dot-line",
-	"custom/keyboard",
+	"hyprland/language",
 	"custom/separator#dot-line",
 	"custom/power",
 	],

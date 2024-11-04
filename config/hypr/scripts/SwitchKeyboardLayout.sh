@@ -56,7 +56,7 @@ echo "Next layout: $new_layout"
 # Function to get keyboard names
 get_keyboard_names() {
     #hyprctl devices -j | jq -r '.keyboards[].name'
-    echo "at-translated-set-2-keyboard"
+    echo $(hyprctl devices | grep -i -A 5 'keyboard at' | grep -i -B 3 'main: yes' | head -1)
 }
 
 # Function to check if a device matches any ignore pattern

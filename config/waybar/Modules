@@ -176,11 +176,11 @@
 	"tooltip-format": "{used} used out of {total} on {path} ({percentage_used}%)",
 },
 "hyprland/language": {
-	"format": "Lang: {}",
-	"format-en": "US",
-	"format-tr": "Korea",
+	"format": " {}",
+	"format-en": "us",
+	"format-ru": "ru",
 	"keyboard-name": "at-translated-set-2-keyboard",
-	"on-click": "hyprctl switchxkblayout $SET_KB next"
+	"on-click": "hyprctl switchxkblayout $(echo $(hyprctl devices | grep -i -A 5 'keyboard at' | grep -i -B 3 'main: yes' | head -1)) next"
 },
 "hyprland/submap": {
 	"format": "<span style=\"italic\">  {}</span>", // Icon: expand-arrows-alt
